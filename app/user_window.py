@@ -153,8 +153,21 @@ class VTKWidget(QWidget):
             reader.SetFileName(file_path)
             reader.Update()
             
+            bounds = reader.GetOutput().GetBounds()
+            center_x = (bounds[0] + bounds[1]) / 2.0
+            center_y = (bounds[2] + bounds[3]) / 2.0
+            center_z = (bounds[4] + bounds[5]) / 2.0
+            
+            center_transform = vtk.vtkTransform()
+            center_transform.Translate(-center_x, -center_y, -center_z)
+            
+            center_filter = vtk.vtkTransformPolyDataFilter()
+            center_filter.SetInputConnection(reader.GetOutputPort())
+            center_filter.SetTransform(center_transform)
+            center_filter.Update()
+            
             mapper = vtk.vtkPolyDataMapper()
-            mapper.SetInputConnection(reader.GetOutputPort())
+            mapper.SetInputConnection(center_filter.GetOutputPort())
             
             self.actor = vtk.vtkActor()
             self.actor.SetMapper(mapper)
