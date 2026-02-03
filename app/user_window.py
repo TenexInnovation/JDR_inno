@@ -190,8 +190,7 @@ class VTKWidget(QWidget):
         if not self.actor or not self.renderer:
             return
             
-        self.rotation_angle += 0.5
-        self.actor.SetOrientation(-90, 0, self.rotation_angle)
+        self.actor.RotateZ(0.5)
         self.vtk_widget.GetRenderWindow().Render()
         
     def clear_scene(self):
