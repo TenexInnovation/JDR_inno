@@ -205,10 +205,16 @@ class VTKWidget(QWidget):
         if self.rotation_timer:
             self.rotation_timer.stop()
             
-    def closeEvent(self, event):
+    def shutdown(self):
         self.stop_rotation()
+        if self.renderer:
+            self.renderer.RemoveAllViewProps()
         if self.vtk_widget:
-            self.vtk_widget.Finalize()
+            self.vtk_widget.GetRenderWindow().Finalize()
+            self.vtk_widget.close()
+            
+    def closeEvent(self, event):
+        self.shutdown()
         super().closeEvent(event)
 
 
@@ -424,5 +430,5 @@ class UserWindow(QMainWindow):
             
     def closeEvent(self, event):
         if self.vtk_widget:
-            self.vtk_widget.stop_rotation()
+            self.vtk_widget.shutdown()
         super().closeEvent(event)
