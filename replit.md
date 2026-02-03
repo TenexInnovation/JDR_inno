@@ -1,34 +1,57 @@
 # JDR Badge Manager
 
 ## Overview
-This is an RFID badge management system for tabletop RPG games. It displays character information with 3D model visualization using Three.js.
+Application de bureau complète pour la gestion de badges RFID dans les jeux de rôle sur table. Affiche les informations des personnages avec une interface moderne PyQt5.
 
 ## Project Structure
-- `server.py` - Flask backend that serves the frontend and API
-- `Frontend.html` - Main frontend with Three.js 3D viewer and character stats display
-- `admin-interface.py` - Original desktop admin interface (requires Tkinter and Arduino - not compatible with Replit cloud environment)
-- `three.js-dev/` - Three.js library for 3D rendering
-- `3D/` - Directory for STL 3D models
+- `main.py` - Application principale avec fenêtre de lancement
+- `app/` - Module de l'application
+  - `database.py` - Gestion de la base de données SQLite
+  - `admin_window.py` - Interface d'administration (gestion des personnages)
+  - `user_window.py` - Interface utilisateur (affichage des personnages avec stats)
+- `server.py` - Serveur Flask pour interface web (legacy)
+- `Frontend.html` - Interface web avec Three.js (legacy)
+- `admin-interface.py` - Interface admin originale Tkinter (legacy, nécessite Arduino)
+- `3D/` - Répertoire pour les modèles 3D STL
 
-## Running the Project
-The Flask server runs on port 5000 and serves:
-- `/` - The main frontend HTML
-- `/api/data` - JSON API for character data
-- `/three.js-dev/*` - Three.js library files
-- `/3D/*` - 3D model files (STL format)
+## Architecture
+### Fenêtre Principale
+- Bouton pour ouvrir l'interface Admin
+- Bouton pour ouvrir l'interface Utilisateur  
+- Simulation de badge (pour tests sans Arduino)
+
+### Interface Admin
+- Liste des personnages enregistrés
+- Formulaire de création/modification de personnage
+- Statistiques: Vigueur, Agilité, Intelligence, Ruse, Volonté, Présence
+- Gestion des situations: Recherché, En fuite, RAS, Endetté, Malfrat
+- Crédits et chemin du modèle 3D
+
+### Interface Utilisateur
+- Affichage du nom du personnage en grand
+- Bulles de statistiques colorées selon la valeur
+- Zone de visualisation 3D (placeholder)
+- Affichage de la situation avec couleur dynamique
+- Affichage des crédits
 
 ## Database
-Uses SQLite (`rfid_data.db`) to store character information including:
-- Badge ID
-- Character name
-- Stats (Vigueur, Agilite, Intelligence, Ruse, Volonte, Presence)
-- Credits
-- Situation status
+SQLite (`rfid_data.db`) avec les champs:
+- badge_id, nom_perso, file_path
+- vigueur, agilite, intelligence, ruse, volonte, presence
+- credits, situation (recherche, en_fuite, RAS, endette, malfrat)
 
-## Notes
-- The original admin-interface.py uses Tkinter GUI and Arduino serial communication which are not available in Replit's cloud environment
-- A demo character is automatically created in the database for testing
-- To add STL 3D models, place them in the `3D/` directory
+## Running the Project
+L'application utilise PyQt5 et s'exécute via VNC dans Replit.
+Commande: `xvfb-run -a python main.py`
+
+## Technologies
+- Python 3.11
+- PyQt5 pour l'interface graphique
+- SQLite pour la base de données
+- VTK (disponible) pour le rendu 3D
 
 ## Recent Changes
-- 2026-02-03: Adapted project for Replit environment with Flask-based server
+- 2026-02-03: Transformation en application de bureau complète avec PyQt5
+- 2026-02-03: Création de l'interface admin avec gestion CRUD des personnages
+- 2026-02-03: Création de l'interface utilisateur avec affichage des stats
+- 2026-02-03: Simulation de badges pour les tests

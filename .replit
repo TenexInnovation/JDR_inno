@@ -4,6 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
+packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "xvfb-run", "zlib", "mesa", "libGL", "xorg.libxcb", "xorg.libX11", "xorg.libXrender", "xorg.libXi", "xorg.libXcursor", "libxkbcommon", "fontconfig", "xorg.xcbutil", "xorg.xcbutilwm", "xorg.xcbutilimage", "xorg.xcbutilkeysyms", "xorg.xcbutilrenderutil", "qt5.qtbase"]
 
 [workflows]
 runButton = "Project"
@@ -15,19 +16,18 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Frontend Server"
+args = "Desktop Application"
 
 [[workflows.workflow]]
-name = "Frontend Server"
+name = "Desktop Application"
 author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "vnc"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "python server.py"
-waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
+args = "xvfb-run -a python main.py"
 
 [[ports]]
 localPort = 5000
