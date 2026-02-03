@@ -166,7 +166,7 @@
     <script type="importmap">
         {
             "imports": {
-                "three": "/Desktop/three.js-dev/build/three.module.js"
+                "three": "/three.js-dev/build/three.module.js"
             }
         }
     </script>
@@ -199,14 +199,14 @@
     <script type="module">
         // Three.js and STL Loader Script
         import * as THREE from 'three';
-        import { OrbitControls } from '/Desktop/three.js-dev/examples/jsm/controls/OrbitControls.js';
-        import { STLLoader } from '/Desktop/three.js-dev/examples/jsm/loaders/STLLoader.js';
+        import { OrbitControls } from '/three.js-dev/examples/jsm/controls/OrbitControls.js';
+        import { STLLoader } from '/three.js-dev/examples/jsm/loaders/STLLoader.js';
 
         let _3D_model = ""
 
         // Fetch Data for Info Grid
         document.addEventListener('DOMContentLoaded', () => {
-            fetch('http://localhost:5000/api/data')
+            fetch('/api/data')
                 .then(response => response.json())
                 .then(data => {
                     let _3D_model = data.file_path; // Assume this contains the filename
@@ -225,7 +225,7 @@
                     // Introduce a delay before loading the 3D model
                     
                     const loader = new STLLoader();
-                    let final_path = 'http://localhost:8000/Desktop/3D/' + _3D_model;
+                    let final_path = '/3D/' + _3D_model;
 
                     loader.load(final_path,
                         (geometry) => {
