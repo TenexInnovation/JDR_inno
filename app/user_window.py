@@ -113,8 +113,6 @@ class VTKWidget(QWidget):
         self.vtk_widget.Initialize()
         self.vtk_widget.Start()
         
-        self.show_placeholder_text("Zone de visualisation 3D\n\n(Sélectionnez un personnage)")
-        
     def setup_lighting(self):
         if not self.renderer:
             return
@@ -133,21 +131,11 @@ class VTKWidget(QWidget):
         light2.SetIntensity(0.4)
         self.renderer.AddLight(light2)
         
-    def show_placeholder_text(self, text):
+    def show_placeholder_text(self, text=None):
         if not VTK_AVAILABLE or not self.renderer:
             return
             
         self.clear_scene()
-        
-        text_actor = vtk.vtkTextActor()
-        text_actor.SetInput(text)
-        text_actor.GetTextProperty().SetFontSize(20)
-        text_actor.GetTextProperty().SetColor(0.5, 0.5, 0.5)
-        text_actor.GetTextProperty().SetJustificationToCentered()
-        text_actor.GetTextProperty().SetVerticalJustificationToCentered()
-        text_actor.SetPosition(150, 200)
-        
-        self.renderer.AddActor2D(text_actor)
         self.vtk_widget.GetRenderWindow().Render()
         
     def load_stl(self, file_path):
@@ -177,13 +165,15 @@ class VTKWidget(QWidget):
             self.actor.GetProperty().SetAmbient(0.2)
             self.actor.GetProperty().SetDiffuse(0.8)
             
+            self.actor.RotateX(-90)
+            
             self.renderer.AddActor(self.actor)
             self.renderer.ResetCamera()
             
             camera = self.renderer.GetActiveCamera()
-            camera.Azimuth(30)
-            camera.Elevation(20)
-            camera.Zoom(0.9)
+            camera.Azimuth(0)
+            camera.Elevation(10)
+            camera.Zoom(0.85)
             
             self.vtk_widget.GetRenderWindow().Render()
             
@@ -201,7 +191,7 @@ class VTKWidget(QWidget):
             return
             
         self.rotation_angle += 0.5
-        self.actor.SetOrientation(0, self.rotation_angle, 0)
+        self.actor.SetOrientation(-90, 0, self.rotation_angle)
         self.vtk_widget.GetRenderWindow().Render()
         
     def clear_scene(self):
