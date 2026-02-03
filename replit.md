@@ -30,7 +30,7 @@ Application de bureau complète pour la gestion de badges RFID dans les jeux de 
 ### Interface Utilisateur
 - Affichage du nom du personnage en grand
 - Bulles de statistiques colorées selon la valeur
-- Zone de visualisation 3D (placeholder)
+- Visualisation 3D avec VTK (charge les fichiers STL avec rotation automatique)
 - Affichage de la situation avec couleur dynamique
 - Affichage des crédits
 
@@ -51,6 +51,9 @@ Commande: `xvfb-run -a python main.py`
 - VTK (disponible) pour le rendu 3D
 
 ## Recent Changes
+- 2026-02-03: Implémentation du rendu 3D VTK avec rotation automatique des modèles STL
+- 2026-02-03: Ajout du README.md complet avec instructions d'installation
+- 2026-02-03: Ajout de personnages de test (BADGE001, BADGE002, BADGE003)
 - 2026-02-03: Transformation en application de bureau complète avec PyQt5
 - 2026-02-03: Création de l'interface admin avec gestion CRUD des personnages
 - 2026-02-03: Création de l'interface utilisateur avec affichage des stats

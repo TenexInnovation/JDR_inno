@@ -1,10 +1,17 @@
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QFrame, QGridLayout
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QFont, QColor, QPalette
 import os
 from app import database as db
+
+try:
+    import vtk
+    from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+    VTK_AVAILABLE = True
+except ImportError:
+    VTK_AVAILABLE = False
 
 class StatBubble(QFrame):
     def __init__(self, stat_name, parent=None):
@@ -68,11 +75,160 @@ class StatBubble(QFrame):
             
         self.value_label.setStyleSheet(f"color: {color}; background: transparent; border: none;")
 
+
+class VTKWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.rotation_angle = 0
+        self.actor = None
+        self.renderer = None
+        self.vtk_widget = None
+        self.rotation_timer = None
+        self.setup_ui()
+        
+    def setup_ui(self):
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        if not VTK_AVAILABLE:
+            self.fallback_label = QLabel("VTK non disponible\n\nInstallez vtk avec:\npip install vtk")
+            self.fallback_label.setFont(QFont("Arial", 14))
+            self.fallback_label.setAlignment(Qt.AlignCenter)
+            self.fallback_label.setStyleSheet("color: #888888; background: transparent;")
+            layout.addWidget(self.fallback_label)
+            return
+            
+        self.vtk_widget = QVTKRenderWindowInteractor(self)
+        layout.addWidget(self.vtk_widget)
+        
+        self.renderer = vtk.vtkRenderer()
+        self.renderer.SetBackground(0.1, 0.1, 0.1)
+        self.vtk_widget.GetRenderWindow().AddRenderer(self.renderer)
+        
+        self.setup_lighting()
+        
+        self.rotation_timer = QTimer(self)
+        self.rotation_timer.timeout.connect(self.rotate_model)
+        
+        self.vtk_widget.Initialize()
+        self.vtk_widget.Start()
+        
+        self.show_placeholder_text("Zone de visualisation 3D\n\n(Sélectionnez un personnage)")
+        
+    def setup_lighting(self):
+        if not self.renderer:
+            return
+            
+        light1 = vtk.vtkLight()
+        light1.SetFocalPoint(0, 0, 0)
+        light1.SetPosition(1, 1, 1)
+        light1.SetColor(1.0, 1.0, 1.0)
+        light1.SetIntensity(0.8)
+        self.renderer.AddLight(light1)
+        
+        light2 = vtk.vtkLight()
+        light2.SetFocalPoint(0, 0, 0)
+        light2.SetPosition(-1, -0.5, -1)
+        light2.SetColor(0.4, 0.4, 0.6)
+        light2.SetIntensity(0.4)
+        self.renderer.AddLight(light2)
+        
+    def show_placeholder_text(self, text):
+        if not VTK_AVAILABLE or not self.renderer:
+            return
+            
+        self.clear_scene()
+        
+        text_actor = vtk.vtkTextActor()
+        text_actor.SetInput(text)
+        text_actor.GetTextProperty().SetFontSize(20)
+        text_actor.GetTextProperty().SetColor(0.5, 0.5, 0.5)
+        text_actor.GetTextProperty().SetJustificationToCentered()
+        text_actor.GetTextProperty().SetVerticalJustificationToCentered()
+        text_actor.SetPosition(150, 200)
+        
+        self.renderer.AddActor2D(text_actor)
+        self.vtk_widget.GetRenderWindow().Render()
+        
+    def load_stl(self, file_path):
+        if not VTK_AVAILABLE or not self.renderer:
+            return False
+            
+        if not os.path.exists(file_path):
+            self.show_placeholder_text(f"Fichier non trouvé:\n{file_path}")
+            return False
+            
+        self.clear_scene()
+        
+        try:
+            reader = vtk.vtkSTLReader()
+            reader.SetFileName(file_path)
+            reader.Update()
+            
+            mapper = vtk.vtkPolyDataMapper()
+            mapper.SetInputConnection(reader.GetOutputPort())
+            
+            self.actor = vtk.vtkActor()
+            self.actor.SetMapper(mapper)
+            
+            self.actor.GetProperty().SetColor(0.3, 0.6, 0.9)
+            self.actor.GetProperty().SetSpecular(0.4)
+            self.actor.GetProperty().SetSpecularPower(30)
+            self.actor.GetProperty().SetAmbient(0.2)
+            self.actor.GetProperty().SetDiffuse(0.8)
+            
+            self.renderer.AddActor(self.actor)
+            self.renderer.ResetCamera()
+            
+            camera = self.renderer.GetActiveCamera()
+            camera.Azimuth(30)
+            camera.Elevation(20)
+            camera.Zoom(0.9)
+            
+            self.vtk_widget.GetRenderWindow().Render()
+            
+            self.rotation_angle = 0
+            self.rotation_timer.start(50)
+            
+            return True
+            
+        except Exception as e:
+            self.show_placeholder_text(f"Erreur de chargement:\n{str(e)}")
+            return False
+            
+    def rotate_model(self):
+        if not self.actor or not self.renderer:
+            return
+            
+        self.rotation_angle += 0.5
+        self.actor.SetOrientation(0, self.rotation_angle, 0)
+        self.vtk_widget.GetRenderWindow().Render()
+        
+    def clear_scene(self):
+        if self.rotation_timer:
+            self.rotation_timer.stop()
+            
+        if self.renderer:
+            self.renderer.RemoveAllViewProps()
+            self.actor = None
+            
+    def stop_rotation(self):
+        if self.rotation_timer:
+            self.rotation_timer.stop()
+            
+    def closeEvent(self, event):
+        self.stop_rotation()
+        if self.vtk_widget:
+            self.vtk_widget.Finalize()
+        super().closeEvent(event)
+
+
 class UserWindow(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.current_badge_id = None
         self.current_character = None
+        self.vtk_widget = None
         self.setup_ui()
         
     def setup_ui(self):
@@ -119,13 +275,18 @@ class UserWindow(QMainWindow):
                 border-radius: 20px;
             }
         """)
+        center_frame.setMinimumSize(500, 400)
         center_layout = QVBoxLayout(center_frame)
-        center_layout.setAlignment(Qt.AlignCenter)
+        center_layout.setContentsMargins(10, 10, 10, 10)
         
-        self.model_label = QLabel("Zone de visualisation 3D\n\n(Sélectionnez un personnage)")
-        self.model_label.setFont(QFont("Arial", 18))
+        self.vtk_widget = VTKWidget()
+        center_layout.addWidget(self.vtk_widget)
+        
+        self.model_label = QLabel("")
+        self.model_label.setFont(QFont("Arial", 10))
         self.model_label.setAlignment(Qt.AlignCenter)
         self.model_label.setStyleSheet("color: #666666; background: transparent; border: none;")
+        self.model_label.setMaximumHeight(30)
         center_layout.addWidget(self.model_label)
         
         content_layout.addWidget(center_frame, stretch=2)
@@ -199,6 +360,7 @@ class UserWindow(QMainWindow):
         
         if not self.current_character:
             self.name_label.setText("Personnage non trouvé")
+            self.vtk_widget.show_placeholder_text("Personnage non trouvé")
             return
             
         char = self.current_character
@@ -256,10 +418,22 @@ class UserWindow(QMainWindow):
         
         file_path = char[4]
         if file_path:
-            full_path = os.path.join("3D", file_path)
-            if os.path.exists(full_path):
-                self.model_label.setText(f"Modèle: {file_path}\n\n(Visualisation 3D disponible)")
+            if file_path.startswith("3D/") or file_path.startswith("3D\\"):
+                full_path = file_path
             else:
-                self.model_label.setText(f"Modèle non trouvé:\n{file_path}")
+                full_path = os.path.join("3D", file_path)
+                
+            if os.path.exists(full_path):
+                self.model_label.setText(f"Modèle: {os.path.basename(file_path)}")
+                self.vtk_widget.load_stl(full_path)
+            else:
+                self.model_label.setText(f"Modèle non trouvé: {file_path}")
+                self.vtk_widget.show_placeholder_text(f"Fichier 3D non trouvé:\n{file_path}")
         else:
-            self.model_label.setText("Aucun modèle 3D\nassocié")
+            self.model_label.setText("Aucun modèle 3D associé")
+            self.vtk_widget.show_placeholder_text("Aucun modèle 3D\nassocié à ce personnage")
+            
+    def closeEvent(self, event):
+        if self.vtk_widget:
+            self.vtk_widget.stop_rotation()
+        super().closeEvent(event)
