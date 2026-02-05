@@ -4,7 +4,7 @@ expertMode = true
 
 [nix]
 channel = "stable-25_05"
-packages = ["freetype", "lcms2", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "tcl", "tk", "xvfb-run", "zlib", "mesa", "libGL", "xorg.libxcb", "xorg.libX11", "xorg.libXrender", "xorg.libXi", "xorg.libXcursor", "libxkbcommon", "fontconfig", "xorg.xcbutil", "xorg.xcbutilwm", "xorg.xcbutilimage", "xorg.xcbutilkeysyms", "xorg.xcbutilrenderutil", "qt5.qtbase"]
+packages = ["fontconfig", "freetype", "lcms2", "libGL", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "libxkbcommon", "mesa", "openjpeg", "qt5.qtbase", "tcl", "tk", "xorg.libX11", "xorg.libXcursor", "xorg.libXi", "xorg.libXrender", "xorg.libxcb", "xorg.xcbutil", "xorg.xcbutilimage", "xorg.xcbutilkeysyms", "xorg.xcbutilrenderutil", "xorg.xcbutilwm", "xvfb-run", "zlib"]
 
 [workflows]
 runButton = "Project"

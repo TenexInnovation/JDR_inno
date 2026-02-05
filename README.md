@@ -62,7 +62,7 @@ python -m venv venv
 .\venv\Scripts\activate
 
 # Installer les dépendances
-pip install PyQt5 flask flask-cors pillow numpy numpy-stl vtk
+pip install PyQt5 flask flask-cors pillow numpy numpy-stl vtk pyserial
 ```
 
 ### Linux (Ubuntu/Debian)
@@ -80,7 +80,7 @@ source venv/bin/activate
 sudo apt-get install python3-pyqt5 libxcb-xinerama0
 
 # Installer les dépendances Python
-pip install PyQt5 flask flask-cors pillow numpy numpy-stl vtk
+pip install PyQt5 flask flask-cors pillow numpy numpy-stl vtk pyserial
 ```
 
 ### Linux (Arch/Manjaro)
@@ -90,7 +90,7 @@ pip install PyQt5 flask flask-cors pillow numpy numpy-stl vtk
 sudo pacman -S python-pyqt5
 
 # Dépendances Python
-pip install flask flask-cors pillow numpy numpy-stl vtk
+pip install flask flask-cors pillow numpy numpy-stl vtk pyserial
 ```
 
 ---

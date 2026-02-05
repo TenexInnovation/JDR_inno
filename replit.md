@@ -4,20 +4,19 @@
 Application de bureau complète pour la gestion de badges RFID dans les jeux de rôle sur table. Affiche les informations des personnages avec une interface moderne PyQt5.
 
 ## Project Structure
-- `main.py` - Application principale avec fenêtre de lancement
+- `main.py` - Application principale avec fenêtre de lancement et support Arduino
 - `app/` - Module de l'application
   - `database.py` - Gestion de la base de données SQLite
   - `admin_window.py` - Interface d'administration (gestion des personnages)
-  - `user_window.py` - Interface utilisateur (affichage des personnages avec stats)
-- `server.py` - Serveur Flask pour interface web (legacy)
-- `Frontend.html` - Interface web avec Three.js (legacy)
-- `admin-interface.py` - Interface admin originale Tkinter (legacy, nécessite Arduino)
+  - `user_window.py` - Interface utilisateur (affichage des personnages avec stats et rendu 3D VTK)
 - `3D/` - Répertoire pour les modèles 3D STL
+- `Code arduino jdr.txt` - Code Arduino pour le lecteur RFID RC522
 
 ## Architecture
 ### Fenêtre Principale
 - Bouton pour ouvrir l'interface Admin
 - Bouton pour ouvrir l'interface Utilisateur  
+- Section Arduino : sélection du port COM, connexion/déconnexion
 - Simulation de badge (pour tests sans Arduino)
 
 ### Interface Admin
@@ -51,6 +50,9 @@ Commande: `xvfb-run -a python main.py`
 - VTK (disponible) pour le rendu 3D
 
 ## Recent Changes
+- 2026-02-05: Ajout du support Arduino RFID avec détection automatique des ports COM
+- 2026-02-05: Nettoyage des fichiers legacy (server.py, Frontend.html, admin-interface.py)
+- 2026-02-03: Centrage automatique des modèles 3D pour rotation correcte
 - 2026-02-03: Implémentation du rendu 3D VTK avec rotation automatique des modèles STL
 - 2026-02-03: Ajout du README.md complet avec instructions d'installation
 - 2026-02-03: Ajout de personnages de test (BADGE001, BADGE002, BADGE003)

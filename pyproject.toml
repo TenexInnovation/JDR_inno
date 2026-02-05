@@ -10,6 +10,7 @@ dependencies = [
     "numpy>=2.4.2",
     "pillow>=12.1.0",
     "pyqt5>=5.15.11",
+    "pyserial>=3.5",
     "pywebview>=6.1",
     "serial>=0.0.97",
     "stl>=0.0.3",
