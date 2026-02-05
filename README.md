@@ -40,7 +40,7 @@ L'application se compose de deux interfaces :
 | PyQt5 | Interface graphique desktop |
 | SQLite | Base de données locale |
 | VTK | Rendu 3D des modèles STL |
-| Flask | Serveur web (legacy) |
+| PySerial | Communication Arduino |
 
 ---
 
@@ -62,7 +62,7 @@ python -m venv venv
 .\venv\Scripts\activate
 
 # Installer les dépendances
-pip install PyQt5 flask flask-cors pillow numpy numpy-stl vtk pyserial
+pip install PyQt5 vtk pyserial
 ```
 
 ### Linux (Ubuntu/Debian)
@@ -80,7 +80,7 @@ source venv/bin/activate
 sudo apt-get install python3-pyqt5 libxcb-xinerama0
 
 # Installer les dépendances Python
-pip install PyQt5 flask flask-cors pillow numpy numpy-stl vtk pyserial
+pip install PyQt5 vtk pyserial
 ```
 
 ### Linux (Arch/Manjaro)
@@ -90,7 +90,7 @@ pip install PyQt5 flask flask-cors pillow numpy numpy-stl vtk pyserial
 sudo pacman -S python-pyqt5
 
 # Dépendances Python
-pip install flask flask-cors pillow numpy numpy-stl vtk pyserial
+pip install vtk pyserial
 ```
 
 ---
@@ -108,6 +108,7 @@ python3 main.py
 L'application s'ouvrira avec la fenêtre principale contenant :
 - Bouton pour ouvrir l'interface Admin
 - Bouton pour ouvrir l'interface Utilisateur
+- Section Arduino : sélection du port COM, connexion/déconnexion
 - Champ de simulation de badge (pour tester sans Arduino)
 
 ---
@@ -179,29 +180,50 @@ Le modèle 3D sera affiché dans l'Interface Utilisateur lors du scan du badge c
 
 ```
 JDR_inno/
-├── main.py              # Point d'entrée - Fenêtre principale
+├── main.py                  # Point d'entrée - Fenêtre principale avec support Arduino
 ├── app/
-│   ├── database.py      # Gestion SQLite (CRUD personnages)
-│   ├── admin_window.py  # Interface d'administration
-│   └── user_window.py   # Interface utilisateur (affichage)
-├── 3D/                  # Dossier pour les modèles 3D STL
-├── rfid_data.db         # Base de données SQLite (créée automatiquement)
-├── server.py            # Serveur Flask (legacy)
-├── Frontend.html        # Interface web Three.js (legacy)
-└── admin-interface.py   # Interface Tkinter originale (legacy)
+│   ├── __init__.py          # Module Python
+│   ├── database.py          # Gestion SQLite (CRUD personnages)
+│   ├── admin_window.py      # Interface d'administration
+│   └── user_window.py       # Interface utilisateur (affichage + rendu 3D VTK)
+├── 3D/                      # Dossier pour les modèles 3D STL
+├── rfid_data.db             # Base de données SQLite (créée automatiquement)
+├── Code arduino jdr.txt     # Code Arduino pour le lecteur RFID RC522
+├── README.md                # Documentation
+└── replit.md                # Configuration Replit
 ```
 
 ---
 
 ## Utilisation avec Arduino (optionnel)
 
-L'application peut fonctionner avec un lecteur RFID Arduino pour scanner de vrais badges. 
-Le fichier `admin-interface.py` contient le code legacy pour la communication série.
+L'application supporte nativement la connexion à un lecteur RFID Arduino.
 
 **Matériel requis :**
 - Arduino Uno/Nano
 - Module RFID RC522
 - Badges/cartes RFID
+
+**Configuration :**
+
+1. Uploadez le code depuis `Code arduino jdr.txt` sur votre Arduino via l'IDE Arduino
+2. Connectez l'Arduino à votre PC
+3. Dans l'application, sélectionnez le port COM dans la liste déroulante
+4. Cliquez sur "Connecter"
+5. Scannez un badge - l'ID s'affiche automatiquement dans l'interface utilisateur
+
+**Câblage RC522 → Arduino Uno :**
+| RC522 | Arduino |
+|-------|---------|
+| SDA   | Pin 10  |
+| SCK   | Pin 13  |
+| MOSI  | Pin 11  |
+| MISO  | Pin 12  |
+| GND   | GND     |
+| RST   | Pin 9   |
+| 3.3V  | 3.3V    |
+
+**Mode simulation :** Si vous n'avez pas d'Arduino, utilisez le champ "Simulation" pour entrer manuellement les IDs de badge (ex: BADGE001, BADGE002, BADGE003)
 
 ---
 
